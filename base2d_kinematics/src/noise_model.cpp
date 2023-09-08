@@ -42,9 +42,9 @@ std::vector<double> loadParametersToVector(const rclcpp::Node::SharedPtr& node, 
 {
   std::vector<double> values;
 
-  for (const std::string& dimension : {"x", "y", "theta"})
+  for (const auto& dimension : {"x", "y", "theta"})
   {
-    for (const std::string& type : {"mean", "covariance"})
+    for (const auto& type : {"mean", "covariance"})
     {
       std::string name = param_prefix + type + "_" + dimension;
       node->declare_parameter<double>(name, 0.0);

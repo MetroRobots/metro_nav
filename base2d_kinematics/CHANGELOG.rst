@@ -2,8 +2,8 @@
 Changelog for package base2d_kinematics
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.0 (2023-09-08)
+------------------
 * Fix `#1 <https://github.com/MetroRobots/metro_nav/issues/1>`_ (`#3 <https://github.com/MetroRobots/metro_nav/issues/3>`_)
 * Rename packages (`#2 <https://github.com/MetroRobots/metro_nav/issues/2>`_)
 * Contributors: David V. Lu!!

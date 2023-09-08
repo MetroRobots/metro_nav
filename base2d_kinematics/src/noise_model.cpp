@@ -34,9 +34,9 @@
 
 /* Author: David V. Lu!! */
 
-#include <kinematics_2d/noise_model.hpp>
+#include <base2d_kinematics/noise_model.hpp>
 
-namespace kinematics_2d
+namespace base2d_kinematics
 {
 std::vector<double> loadParametersToVector(const rclcpp::Node::SharedPtr& node, const std::string& param_prefix)
 {
@@ -93,4 +93,4 @@ std::array<double, 36> NoiseModel::getCovarianceMatrix() const
   matrix[35] = noise_theta_.stddev();
   return matrix;
 }
-}  // namespace kinematics_2d
+}  // namespace base2d_kinematics

@@ -1,0 +1,60 @@
+metro_teleop:
+  ros__parameters:
+    bindings:
+      i:
+        linear_x: 1
+      o:
+        linear_x: 1
+        angular_z: -1
+      u:
+        linear_x: 1
+        angular_z: 1
+
+      j:
+        angular_z: 1
+      l:
+        angular_z: -1
+
+      'comma':
+        linear_x: -1
+      'period':
+        linear_x: -1
+        angular_z: 1
+      m:
+        linear_x: -1
+        angular_z: -1
+
+      t:
+        linear_z: 1
+      b:
+        linear_z: -1
+
+      O:
+        linear_x: 1
+        linear_y: -1
+      I:
+        linear_x: 1
+      J:
+        linear_y: 1
+      L:
+        linear_y: -1
+      U:
+        linear_x: 1
+        linear_y: 1
+      'lessthan':
+        linear_x: -1
+      'greaterthan':
+        linear_x: -1
+        linear_y: -1
+      M:
+        linear_x: -1
+        linear_y: 1
+
+      up:
+        linear_x: 1
+      down:
+        linear_x: -1
+      left:
+        angular_z: 1
+      right:
+        angular_z: -1

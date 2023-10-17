@@ -1,0 +1,20 @@
+metro_teleop:
+  ros__parameters:
+    axis_names:
+    - joy_x
+    - joy_y
+    button_names:
+    - d_right
+    - d_left
+    - d_down
+    - d_up
+    - start
+    - z
+    - b
+    - a
+    - c_right
+    - c_left
+    - c_down
+    - c_up
+    - r
+    - l

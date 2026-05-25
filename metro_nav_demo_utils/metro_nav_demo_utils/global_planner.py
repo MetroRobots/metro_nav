@@ -8,6 +8,8 @@ from tf2_ros import TransformBroadcaster
 from simple_actions.simple_client import SimpleActionClient, ResultCode
 from nav2_msgs.action import ComputePathToPose
 from rcl_interfaces.srv import GetParameters
+from visualization_msgs.msg import Marker, MarkerArray
+from color_util import NamedColor24, convert_color_to_msg
 
 
 class GlobalPlanDemo(Node):
@@ -17,7 +19,7 @@ class GlobalPlanDemo(Node):
         self.tf_broadcaster = TransformBroadcaster(self)
         self.transform = TransformStamped()
         self.transform.header.frame_id = 'map'
-        self.transform.child_frame_id = 'base_footprint'
+        self.transform.child_frame_id = 'base_link'
 
         self.start = None
         self.goal = None
@@ -26,6 +28,15 @@ class GlobalPlanDemo(Node):
         self.planner_name = None
         self.queue = []
         self.future = None
+
+        self.colors = []
+        for color in NamedColor24:
+            if not color.a:
+                continue
+            self.colors.append(convert_color_to_msg(color))
+
+        self.marker_pub = self.create_publisher(MarkerArray, '/markers', 20)
+        self.marker_array = MarkerArray()
 
         self.param_srv = self.create_client(GetParameters, '/planner_server/get_parameters')
 
@@ -78,6 +89,7 @@ class GlobalPlanDemo(Node):
             return
 
         self.queue = self.planner_names[:]
+        self.marker_array.markers.clear()
 
         self.plan_next()
 
@@ -101,6 +113,32 @@ class GlobalPlanDemo(Node):
             d = result.planning_time.sec + result.planning_time.nanosec / 1e9
             planner_status = f'{self.planner_name}: Found plan with {len(result.path.poses)} poses in {d:4f} seconds'
             self.get_logger().info(planner_status)
+
+        index = self.planner_names.index(self.planner_name)
+        color = self.colors[index % len(self.colors)]
+
+        path_marker = Marker()
+        path_marker.header = result.path.header
+        path_marker.ns = self.planner_name
+        path_marker.type = Marker.LINE_STRIP
+        path_marker.scale.x = 0.05
+        path_marker.color = color
+        for pose in result.path.poses:
+            path_marker.points.append(pose.pose.position)
+        self.marker_array.markers.append(path_marker)
+
+        if len(self.planner_names) > 1:
+            text_marker = Marker()
+            text_marker.header = self.goal.header
+            text_marker.ns = self.planner_name + '_text'
+            text_marker.type = Marker.TEXT_VIEW_FACING
+            text_marker.scale.z = 0.25
+            text_marker.color = color
+            text_marker.pose.position.x = self.goal.pose.position.x
+            text_marker.pose.position.y = self.goal.pose.position.y - index * text_marker.scale.z
+            text_marker.text = planner_status
+            self.marker_array.markers.append(text_marker)
+        self.marker_pub.publish(self.marker_array)
 
         self.plan_next()
 

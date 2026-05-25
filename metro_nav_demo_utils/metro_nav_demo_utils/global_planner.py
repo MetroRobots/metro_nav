@@ -16,10 +16,11 @@ class GlobalPlanDemo(Node):
 
     def __init__(self):
         super().__init__('global_planner_demo')
+        self.declare_parameter('child_frame_id', 'base_link')
+
         self.tf_broadcaster = TransformBroadcaster(self)
         self.transform = TransformStamped()
         self.transform.header.frame_id = 'map'
-        self.transform.child_frame_id = 'base_link'
 
         self.start = None
         self.goal = None
@@ -49,6 +50,7 @@ class GlobalPlanDemo(Node):
 
     def timer_cb(self):
         self.transform.header.stamp = self.get_clock().now().to_msg()
+        self.transform.child_frame_id = self.get_parameter('child_frame_id').value
         self.tf_broadcaster.sendTransform(self.transform)
 
         if not self.planner_names:

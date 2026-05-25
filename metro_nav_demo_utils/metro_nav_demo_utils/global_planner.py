@@ -7,6 +7,7 @@ from tf2_ros import TransformBroadcaster
 
 from simple_actions.simple_client import SimpleActionClient, ResultCode
 from nav2_msgs.action import ComputePathToPose
+from rcl_interfaces.srv import GetParameters
 
 
 class GlobalPlanDemo(Node):
@@ -21,6 +22,13 @@ class GlobalPlanDemo(Node):
         self.start = None
         self.goal = None
 
+        self.planner_names = None
+        self.planner_name = None
+        self.queue = []
+        self.future = None
+
+        self.param_srv = self.create_client(GetParameters, '/planner_server/get_parameters')
+
         self.action_client = SimpleActionClient(self, ComputePathToPose, '/compute_path_to_pose')
 
         self.pose_sub = self.create_subscription(PoseWithCovarianceStamped, '/initialpose', self.save_pose, 1)
@@ -31,6 +39,17 @@ class GlobalPlanDemo(Node):
     def timer_cb(self):
         self.transform.header.stamp = self.get_clock().now().to_msg()
         self.tf_broadcaster.sendTransform(self.transform)
+
+        if not self.planner_names:
+            if self.future is None:
+                self.param_srv.wait_for_service()
+                req = GetParameters.Request(names=['planner_plugins'])
+                self.future = self.param_srv.call_async(req)
+                return
+            elif self.future.done():
+                res = self.future.result()
+                value = res.values[0]
+                self.planner_names = value.string_array_value
 
     def save_pose(self, msg):
         pose = msg.pose.pose
@@ -55,21 +74,35 @@ class GlobalPlanDemo(Node):
         self.initiate_new_planning_sequence()
 
     def initiate_new_planning_sequence(self):
-        if not self.start or not self.goal:
+        if not self.start or not self.goal or not self.planner_names:
             return
+
+        self.queue = self.planner_names[:]
+
+        self.plan_next()
+
+    def plan_next(self):
+        if not self.queue:
+            return
+        self.planner_name = self.queue.pop(0)
 
         goal_msg = ComputePathToPose.Goal()
         goal_msg.start = self.start
         goal_msg.goal = self.goal
+        goal_msg.planner_id = self.planner_name
         goal_msg.use_start = True
         self.action_client.send_goal(goal_msg, self.done)
 
     def done(self, result_code, result):
         if result_code != ResultCode.SUCCEEDED:
-            self.get_logger().warn('Planning failed.')
+            planner_status = f'{self.planner_name}: Planning failed.'
+            self.get_logger().warn(planner_status)
         else:
             d = result.planning_time.sec + result.planning_time.nanosec / 1e9
-            self.get_logger().info(f'Found plan with {len(result.path.poses)} poses in {d:4f} seconds')
+            planner_status = f'{self.planner_name}: Found plan with {len(result.path.poses)} poses in {d:4f} seconds'
+            self.get_logger().info(planner_status)
+
+        self.plan_next()
 
 
 def main():

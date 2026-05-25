@@ -9,7 +9,7 @@ from simple_actions.simple_client import SimpleActionClient, ResultCode
 from nav2_msgs.action import ComputePathToPose
 
 
-class FramePublisher(Node):
+class GlobalPlanDemo(Node):
 
     def __init__(self):
         super().__init__('global_planner_demo')
@@ -48,13 +48,13 @@ class FramePublisher(Node):
         self.transform.transform.rotation.z = pose.orientation.z
         self.transform.transform.rotation.w = pose.orientation.w
 
-        self.plan()
+        self.initiate_new_planning_sequence()
 
     def save_goal(self, msg):
         self.goal = msg
-        self.plan()
+        self.initiate_new_planning_sequence()
 
-    def plan(self):
+    def initiate_new_planning_sequence(self):
         if not self.start or not self.goal:
             return
 
@@ -74,7 +74,7 @@ class FramePublisher(Node):
 
 def main():
     rclpy.init()
-    node = FramePublisher()
+    node = GlobalPlanDemo()
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:

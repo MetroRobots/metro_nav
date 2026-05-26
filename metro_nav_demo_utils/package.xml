@@ -6,12 +6,15 @@
   <description>Some utilities for testing out different parts of navigation</description>
   <maintainer email="davidvlu@gmail.com">David V. Lu!!</maintainer>
   <license>BSD 3-clause</license>
+  <depend>color_util</depend>
   <depend>geometry_msgs</depend>
   <depend>nav2_msgs</depend>
   <depend>nav_msgs</depend>
+  <depend>rcl_interfaces</depend>
   <depend>rclpy</depend>
   <depend>simple_actions</depend>
   <depend>tf2_ros</depend>
+  <depend>visualization_msgs</depend>
 
   <export>
     <build_type>ament_python</build_type>

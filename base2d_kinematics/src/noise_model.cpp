@@ -85,6 +85,8 @@ std::array<double, 36> NoiseModel::getCovarianceMatrix() const
 {
   std::array<double, 36> matrix;
 
+  matrix.fill(0.0);
+
   matrix[0] = noise_x_.stddev();
   matrix[7] = noise_y_.stddev();
   matrix[14] = 1000000000000.0;
